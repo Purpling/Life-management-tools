@@ -1,0 +1,85 @@
+<html>
+    <head>
+        <title>Energy Management</title>
+        <style>
+            #node{
+                position: absolute;
+                background: rgba(255,255,255,255);
+                border-width: 3px;
+                border-radius: 3px;
+            }
+            #menu{
+                z-index: 1;
+                position: relative;
+                background: rgba(255,255,255,255);
+                border: 3px solid rgba(0,0,0,255);
+                border-width: 3px;
+                border-radius: 3px;
+            }
+            .button{
+                text-align: center;
+                font-weight: bold;
+                background: rgba(255,255,255,255);
+                border: 2px solid rgba(0,0,0,255);
+                border-width: 2px;
+            }
+        </style>
+    </head>
+    <body oncontextmenu="return false;">
+        <div id="menu" style="width:150px;height:400px;visibility:hidden;">
+            <div class="button" style="width: 146px;" onclick="document.getElementById('menu').style.visibility = 'hidden';var menu = document.getElementById('menu');create(menu.style.left,menu.style.top);">New node</div>
+            <div class="button" style="width: 146px;" onclick="document.getElementById('menu').style.visibility = 'hidden';var menu = document.getElementById('menu');display(menu.style.left,menu.style.top);">New display</div>
+        </div>
+        <script>
+            var nodes = [];var displays = [];var offset = [0,0];
+            var isDown = false;var target = null;
+
+            function num(n){return Number(n.substring(0,n.length-2))}
+
+            function menu(x,y){
+                var menu = document.getElementById("menu");
+                menu.style.visibility = "visible";
+                menu.style.left = x-num(menu.style.width)/2;
+                menu.style.top = y;
+            }
+
+            function display(x,y){var id = displays.length+1;
+                var div = document.createElement("div");
+                div.style.left = x;div.style.top = y;
+                div.style.width = "150px";div.style.height = "75px";
+                div.style.border = "3px solid rgba(0,0,0,255)";
+                div.id = "node";document.body.appendChild(div);
+                var total = 0;for(let v=0;v<document.getElementsByClassName("t").length;v++){total = total + Number(document.getElementsByClassName("t")[v].innerHTML);}
+                div.innerHTML = "<div class='button' onclick='remove("+id+");' style='position: absolute;left: 134px;'>X</div><div class='button' style='position: absolute;width: 146px;height: 51px;top: 20px;'>Day mood: <span id='d"+id+"' class='d'>"+total+"</span></div>";
+                div.addEventListener("mousedown",function(e){if(!isDown&&e.which==1){
+                    offset = [displays[id].offsetLeft-e.clientX,displays[id].offsetTop-e.clientY];
+                isDown = true;target = div;}},true);displays[id] = div;
+            }
+            function remove(i){document.body.removeChild(displays[i]);}
+
+            function update(i){document.getElementById("t"+i).innerHTML = document.getElementById("g"+i).value - document.getElementById("b"+i).value;var total = 0;for(let v=0;v<document.getElementsByClassName("t").length;v++){total = total + Number(document.getElementsByClassName("t")[v].innerHTML);}for(let v=0;v<document.getElementsByClassName("d").length;v++){document.getElementsByClassName("d")[v].innerHTML = total;}}
+            function create(x,y){var id = nodes.length+1;
+                var div = document.createElement("div");
+                div.style.left = x;div.style.top = y;
+                div.style.width = "100px";div.style.height = "112px";
+                div.style.border = "3px solid rgba(0,0,0,255)";
+                div.id = "node";document.body.appendChild(div);
+                div.innerHTML = "<div class='button' onclick='destroy("+id+");' style='position: absolute;left: 84px;'>X</div><div class='button' style='position: absolute;width: 96px;top: 20px;'><input type='text' value='Title' style='text-align: center;font-weight: 800;width: 96px;'><div>Total: <span id='t"+id+"' class='t'>0</span></div></div><div class='button' style='position: absolute;width: 96px;top: 67px;'><div>Good: <input id='g"+id+"' type='number' value='0' oninput='update("+id+");' onpropertychange='update("+id+");' style='text-align: center;font-weight: 700;width: 45px;'></div><div>Bad: <input id='b"+id+"' type='number' value='0' oninput='update("+id+");' onpropertychange='update("+id+");' style='text-align: center;font-weight: 700;width: 45px;'></div></div>";
+                div.addEventListener("mousedown",function(e){if(!isDown&&e.which==1){
+                    offset = [nodes[id].offsetLeft-e.clientX,nodes[id].offsetTop-e.clientY];
+                isDown = true;target = div;}},true);nodes[id] = div;
+            }
+            function destroy(i){document.body.removeChild(nodes[i]);var total = 0;for(let v=0;v<document.getElementsByClassName("t").length;v++){total = total + Number(document.getElementsByClassName("t")[v].innerHTML);}for(let v=0;v<document.getElementsByClassName("d").length;v++){document.getElementsByClassName("d")[v].innerHTML = total;}}
+            
+            document.addEventListener("mousedown",function(e){if(!isDown&&e.which==3){e.preventDefault();menu(e.clientX,e.clientY);}},true);
+            document.addEventListener("mouseup",function(){isDown = false;},true);
+            document.addEventListener("mousemove",function(e){if(isDown){
+                target.style.left = (e.clientX+offset[0])+"px";
+                target.style.top = (e.clientY+offset[1])+"px";
+            } var menu = document.getElementById("menu"); if(menu.style.visibility=="visible"){
+                if(e.clientX<num(menu.style.left)||e.clientX>num(menu.style.left)+num(menu.style.width)){menu.style.visibility = "hidden";}
+                if(e.clientY<num(menu.style.top)||e.clientY>num(menu.style.top)+num(menu.style.height)){menu.style.visibility = "hidden";}
+            }},true);
+        </script>
+    </body>
+</html>
